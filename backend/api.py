@@ -5,7 +5,18 @@ import pandas as pd
 from prophet import Prophet
 from datetime import datetime
 
-app = FastAPI(title="RawMaterial API", description="API de Inteligência Preditiva para Commodities B2B")
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ==========================================
 # 1. Configurações de Banco de Dados e CORS
