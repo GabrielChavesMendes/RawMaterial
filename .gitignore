@@ -1,0 +1,9 @@
+# Ambientes Virtuais Python
+.venv/
+venv/
+__pycache__/
+
+# Node / React
+node_modules/
+dist/
+.env
