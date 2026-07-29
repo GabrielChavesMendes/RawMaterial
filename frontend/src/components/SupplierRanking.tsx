@@ -25,7 +25,7 @@ export function SupplierRanking() {
   useEffect(() => {
     const buscarFornecedores = async () => {
       try {
-        const resposta = await fetch('http://localhost:8000/api/fornecedores');
+        const resposta = await fetch('https://rawmaterial-api.onrender.com/api/fornecedores');
         const dadosJson = await resposta.json();
         
         // Injetamos os links nos dados que vieram da API

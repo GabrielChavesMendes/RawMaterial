@@ -44,7 +44,7 @@ export function GlobalForecast({ material }: Props) {
 
       try {
         // 2. Injetamos a variável dias_futuros dinamicamente na URL
-        const resposta = await fetch(`http://localhost:8000/api/previsao/${material}?dias_futuros=${diasFuturos}`);
+        const resposta = await fetch(`https://rawmaterial-api.onrender.com/api/previsao/${material}?dias_futuros=${diasFuturos}`);
         if (!resposta.ok) throw new Error("Erro ao aceder à API");
         
         const dadosJson = await resposta.json();

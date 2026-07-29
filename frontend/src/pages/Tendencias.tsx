@@ -16,7 +16,7 @@ export function Tendencias() {
   useEffect(() => {
     const buscarMovimentacoes = async () => {
       try {
-        const resposta = await fetch('http://localhost:8000/api/top-movers');
+        const resposta = await fetch('https://rawmaterial-api.onrender.com/api/top-movers');
         if (resposta.ok) {
           const dados = await resposta.json();
           setAltas(dados.altas || []);

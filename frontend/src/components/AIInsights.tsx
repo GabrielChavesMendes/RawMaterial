@@ -22,7 +22,7 @@ export function AIInsights({ material }: Props) {
       setErro(''); // Limpa erros passados ao trocar de material
       try {
         // 2. A URL usa a variável do App.tsx
-        const resposta = await fetch(`http://localhost:8000/api/insights/${material}`);
+        const resposta = await fetch(`https://rawmaterial-api.onrender.com/api/insights/${material}`);
         if (!resposta.ok) throw new Error('Erro ao aceder à API');
         
         const dadosJson = await resposta.json();
