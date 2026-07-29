@@ -5,26 +5,12 @@ import pandas as pd
 from prophet import Prophet
 from datetime import datetime
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
 app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # ==========================================
 # 1. Configurações de Banco de Dados e CORS
 # ==========================================
-# Substitua 'sua_senha' pela password do seu projeto Supabase
-SUPABASE_URL = "postgresql://postgres:Favorito%400007@db.ytcnmqaojipmgnztbdvq.supabase.co:5432/postgres"
-
-# Liberta o acesso para o nosso Front-end em React (localhost:5173 ou domínio em produção)
+# Liberta o acesso para o nosso Front-end em React (Vercel ou localhost)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,6 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Substitua 'sua_senha' pela password do seu projeto Supabase
+SUPABASE_URL = "postgresql://postgres:Favorito%400007@db.ytcnmqaojipmgnztbdvq.supabase.co:5432/postgres"
 
 def get_db_connection():
     return psycopg2.connect(SUPABASE_URL)
