@@ -4,13 +4,13 @@ import psycopg2
 import pandas as pd
 from prophet import Prophet
 from datetime import datetime
+import feedparser
 
 app = FastAPI()
 
 # ==========================================
 # 1. Configurações de Banco de Dados e CORS
 # ==========================================
-# Liberta o acesso para o nosso Front-end em React (Vercel ou localhost)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,8 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Substitua 'sua_senha' pela password do seu projeto Supabase
-SUPABASE_URL = "postgresql://postgres.ytcnmqaojipmgnztbdvq:Favorito%400007@aws-0-ca-central-1.pooler.supabase.com:6543/postgres"
+# Ligação ao Supabase usando a porta 6543 (Pooler) que funciona no Render
+SUPABASE_URL = "postgresql://postgres.ytcnmqaojipmgnztbdvq:Favorito%400007@aws-0-sa-east-1.pooler.supabase.com:6543/postgres"
+
 
 def get_db_connection():
     return psycopg2.connect(SUPABASE_URL)
@@ -40,22 +41,17 @@ def prever_material(material: str, dias_futuros: int = 90):
         if df.empty:
             raise HTTPException(status_code=404, detail=f"Sem dados históricos para a commodity: {material}")
 
-        # Remove timezone para evitar bugs no Prophet
         df['ds'] = pd.to_datetime(df['ds']).dt.tz_localize(None)
 
-        # Treina o Prophet on-the-fly
         m = Prophet(daily_seasonality=True, yearly_seasonality=False)
         m.fit(df)
 
-        # Previsão futura
         futuro = m.make_future_dataframe(periods=dias_futuros)
         previsao = m.predict(futuro)
 
-        # Filtra apenas os dias futuros
         hoje = pd.to_datetime(datetime.now().date())
         previsao_futura = previsao[previsao['ds'] > hoje][['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
 
-        # Formatação
         previsao_futura['ds'] = previsao_futura['ds'].dt.strftime('%Y-%m-%d')
         previsao_futura['yhat'] = previsao_futura['yhat'].round(2)
         previsao_futura['yhat_lower'] = previsao_futura['yhat_lower'].round(2)
@@ -91,7 +87,6 @@ def obter_top_movers():
             preco_atual = float(df_mat.iloc[-1]['preco'])
             preco_antigo = float(df_mat.iloc[-30]['preco'])
 
-            # Cálculo da variação percentual
             variacao = round(((preco_atual - preco_antigo) / preco_antigo) * 100, 1)
 
             unidade = "t"
@@ -109,7 +104,6 @@ def obter_top_movers():
                 "valor_variacao": variacao
             })
 
-        # Top 2 Altas e Top 2 Quedas
         altas = sorted([r for r in resultados if r['valor_variacao'] >= 0], key=lambda x: x['valor_variacao'],
                        reverse=True)[:2]
         quedas = sorted([r for r in resultados if r['valor_variacao'] < 0], key=lambda x: x['valor_variacao'])[:2]
@@ -170,3 +164,33 @@ def obter_insights(material: str):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao gerar insights: {str(e)}")
+
+
+# ==========================================
+# 6. Rota 5: Radar de Notícias Reais (RSS)
+# ==========================================
+@app.get("/api/noticias")
+def obter_noticias():
+    try:
+        url = "https://news.google.com/rss/search?q=logistica+portos+commodities+when:7d&hl=pt-BR&gl=BR&ceid=BR:pt-419"
+        feed = feedparser.parse(url)
+
+        alertas = []
+        for entry in feed.entries[:4]:
+            data_limpa = entry.published[5:16] if hasattr(entry, 'published') else "Recente"
+
+            alertas.append({
+                "id": entry.id if hasattr(entry, 'id') else entry.link,
+                "texto": entry.title,
+                "tipo": "alerta",
+                "data": data_limpa
+            })
+
+        if not alertas:
+            return [{"id": "1", "texto": "Monitorização ativa. Nenhum alerta crítico reportado nas últimas 24h.",
+                     "tipo": "info", "data": "Hoje"}]
+
+        return alertas
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar notícias: {str(e)}")

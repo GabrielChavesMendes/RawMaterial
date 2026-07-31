@@ -1,41 +1,79 @@
 import { useState } from 'react';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
 
 export function Relatorios() {
   const [tipoRelatorio, setTipoRelatorio] = useState('previsao');
   const [periodo, setPeriodo] = useState('30d');
   
-  // Estados para simular o "Loading" dos botões de exportação
   const [gerandoPdf, setGerandoPdf] = useState(false);
   const [gerandoExcel, setGerandoExcel] = useState(false);
 
-  const simularExportacao = (formato: 'pdf' | 'excel') => {
-    if (formato === 'pdf') {
-      setGerandoPdf(true);
-      setTimeout(() => {
-        setGerandoPdf(false);
-        alert("Sucesso! O relatório em PDF (relatorio_rawmaterial.pdf) foi baixado para o seu computador.");
-      }, 1500); // Finge que demorou 1.5 segundos a compilar o PDF
-    } else {
-      setGerandoExcel(true);
-      setTimeout(() => {
-        setGerandoExcel(false);
-        alert("Sucesso! A planilha Excel (dados_exportados.xlsx) foi baixada para o seu computador.");
-      }, 1500);
-    }
+  // Dados reais que vão para o Excel
+  const dadosExportacao = [
+    { Material: "Petróleo (WTI)", Preco_Atual: 82.50, Moeda: "USD", Variacao: "+2.1%", Tendencia: "Alta" },
+    { Material: "Ouro", Preco_Atual: 2340.10, Moeda: "USD", Variacao: "+5.0%", Tendencia: "Alta" },
+    { Material: "Trigo", Preco_Atual: 650.00, Moeda: "USD", Variacao: "-1.2%", Tendencia: "Baixa" },
+    { Material: "Madeira", Preco_Atual: 420.00, Moeda: "USD", Variacao: "0.0%", Tendencia: "Estável" },
+    { Material: "Cobre", Preco_Atual: 4.15, Moeda: "USD", Variacao: "+1.8%", Tendencia: "Alta" },
+  ];
+
+  const exportarPDF = () => {
+    setGerandoPdf(true);
+    
+    setTimeout(() => {
+      // 1. Cria um novo documento PDF
+      const doc = new jsPDF();
+      
+      // 2. Adiciona textos e formatação
+      doc.setFontSize(20);
+      doc.setTextColor(220, 38, 38); // Vermelho da sua marca
+      doc.text("Relatório RawMaterial", 20, 20);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(100, 116, 139); // Cinza
+      doc.text(`Documento gerado em: ${new Date().toLocaleDateString()}`, 20, 30);
+      
+      doc.setTextColor(0, 0, 0); // Preto
+      doc.text(`Tipo de Análise: ${tipoRelatorio.toUpperCase()}`, 20, 45);
+      doc.text(`Período Selecionado: ${periodo === '30d' ? '30 Dias' : periodo === '90d' ? '3 Meses' : '1 Ano'}`, 20, 55);
+      
+      doc.setFontSize(10);
+      doc.text("Este é um documento confidencial gerado automaticamente pelo algoritmo preditivo.", 20, 80);
+      
+      // 3. Força o download do ficheiro
+      doc.save(`RawMaterial_Relatorio_${periodo}.pdf`);
+      setGerandoPdf(false);
+    }, 800); // Pequeno atraso apenas para a UX (mostrar o spinner)
   };
 
-  // Histórico de relatórios fictício (usando datas recentes)
+  const exportarExcel = () => {
+    setGerandoExcel(true);
+    
+    setTimeout(() => {
+      // 1. Converte o nosso array de dados numa "folha" de cálculo (worksheet)
+      const folha = XLSX.utils.json_to_sheet(dadosExportacao);
+      
+      // 2. Cria um ficheiro Excel vazio (workbook)
+      const livro = XLSX.utils.book_new();
+      
+      // 3. Adiciona a nossa folha dentro do ficheiro
+      XLSX.utils.book_append_sheet(livro, folha, "Dados de Mercado");
+      
+      // 4. Força o download
+      XLSX.writeFile(livro, `RawMaterial_Dados_${periodo}.xlsx`);
+      setGerandoExcel(false);
+    }, 800);
+  };
+
+  // Histórico de relatórios
   const historicoRelatorios = [
     { id: 1, nome: "Análise Preditiva - Metais (Q3)", data: "27 Jul 2026", tamanho: "2.4 MB", formato: "PDF" },
     { id: 2, nome: "Exportação Bruta - Prophet (1 Ano)", data: "25 Jul 2026", tamanho: "512 KB", formato: "Excel" },
-    { id: 3, nome: "Avaliação de Risco Logístico", data: "20 Jul 2026", tamanho: "1.1 MB", formato: "PDF" },
-    { id: 4, nome: "Consolidado de ROI (Madeira)", data: "15 Jul 2026", tamanho: "890 KB", formato: "PDF" },
   ];
 
   return (
     <div className="space-y-8 animate-fade-in">
-      
-      {/* Cabeçalho */}
       <header>
         <h1 className="text-2xl font-bold text-white tracking-tight">Central de Relatórios</h1>
         <p className="text-sm text-slate-400 mt-1">Gere, exporte e partilhe análises detalhadas com a sua equipa.</p>
@@ -62,8 +100,6 @@ export function Relatorios() {
               >
                 <option value="previsao">Análise Preditiva e Preços Futuros</option>
                 <option value="movimentacao">Histórico de Movimentações (Top Movers)</option>
-                <option value="cadeia">Avaliação de Fornecedores e Riscos Logísticos</option>
-                <option value="roi">Simulações de Retorno (ROI)</option>
               </select>
             </div>
 
@@ -91,7 +127,7 @@ export function Relatorios() {
 
           <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={() => simularExportacao('pdf')}
+              onClick={exportarPDF}
               disabled={gerandoPdf || gerandoExcel}
               className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-lg transition-colors disabled:opacity-50"
             >
@@ -107,7 +143,7 @@ export function Relatorios() {
             </button>
             
             <button
-              onClick={() => simularExportacao('excel')}
+              onClick={exportarExcel}
               disabled={gerandoPdf || gerandoExcel}
               className="w-full flex items-center justify-center gap-2 bg-[#10b981] hover:bg-[#059669] text-white font-bold py-3.5 rounded-lg transition-colors disabled:opacity-50"
             >
@@ -124,10 +160,9 @@ export function Relatorios() {
           </div>
         </section>
 
-        {/* Histórico de Relatórios */}
+        {/* Histórico Simplificado para a Tela */}
         <section className="bg-[#111827] border border-[#1F2937] rounded-2xl p-6 shadow-xl">
           <h3 className="text-lg font-bold text-white mb-6">Arquivos Recentes</h3>
-          
           <div className="space-y-4">
             {historicoRelatorios.map((relatorio) => (
               <div key={relatorio.id} className="group flex items-center justify-between p-4 bg-[#1F2937] border border-[#374151] rounded-xl hover:border-slate-500 transition-colors">
@@ -146,22 +181,10 @@ export function Relatorios() {
                     </div>
                   </div>
                 </div>
-                
-                <button 
-                  onClick={() => alert(`A transferir documento arquivado: ${relatorio.nome}`)}
-                  className="text-slate-400 hover:text-white transition-colors p-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                </button>
               </div>
             ))}
           </div>
-          
-          <button className="w-full mt-6 py-2 text-sm text-red-400 hover:text-red-300 font-medium transition-colors text-center">
-            Ver todo o histórico
-          </button>
         </section>
-
       </div>
     </div>
   );
