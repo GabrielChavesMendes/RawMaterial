@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 # Substitua 'sua_senha' pela password do seu projeto Supabase
-SUPABASE_URL = "postgresql://postgres:Favorito%400007@db.ytcnmqaojipmgnztbdvq.supabase.co:5432/postgres"
+SUPABASE_URL = "postgresql://postgres.ytcnmqaojipmgnztbdvq:Favorito%400007@aws-0-ca-central-1.pooler.supabase.com:6543/postgres"
 
 def get_db_connection():
     return psycopg2.connect(SUPABASE_URL)
