@@ -52,12 +52,8 @@ export function Login() {
         
         {/* Logótipo */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.4)]">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
-          </div>
-          <span className="text-white font-bold text-2xl tracking-tight">Raw<span className="text-slate-400">Material</span></span>
+        <img src="/logo.png" alt="RawMaterial Logo" className="h-15 w-auto rounded-lg" />
+        <span className="text-white font-bold text-xl tracking-tight">Raw<span className="text-slate-400">Material</span></span>
         </div>
 
         <h2 className="text-xl font-bold text-white text-center mb-6">Aceda à plataforma</h2>
