@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 # Ligação ao Supabase usando a porta 6543 (Pooler) que funciona no Render
-SUPABASE_URL = "postgresql://postgres.ytcnmqaojipmgnztbdvq:Favorito%400007@aws-0-sa-east-1.pooler.supabase.com:6543/postgres"
+SUPABASE_URL = "postgresql://postgres.ytcnmqaojipmgnztbdvq:Favorito%400007@aws-0-ca-central-1.pooler.supabase.com:6543/postgres"
 
 
 def get_db_connection():
@@ -172,6 +172,7 @@ def obter_insights(material: str):
 @app.get("/api/noticias")
 def obter_noticias():
     try:
+        # Busca notícias reais dos últimos 7 dias sobre logística e commodities
         url = "https://news.google.com/rss/search?q=logistica+portos+commodities+when:7d&hl=pt-BR&gl=BR&ceid=BR:pt-419"
         feed = feedparser.parse(url)
 
