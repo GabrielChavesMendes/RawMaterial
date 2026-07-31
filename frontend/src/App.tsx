@@ -14,15 +14,15 @@ import { Configuracoes } from './pages/Configuracoes';
 export default function App() {
   const [sessao, setSessao] = useState<any>(null);
   const [carregandoIncial, setCarregandoInicial] = useState(true);
+  
+  const [menuMobileAberto, setMenuMobileAberto] = useState(false);
 
   useEffect(() => {
-    // Verifica se já existe uma sessão guardada ao abrir a página
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSessao(session);
       setCarregandoInicial(false);
     });
 
-    // Fica à escuta de mudanças (ex: quando o utilizador faz login ou logout)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -36,26 +36,53 @@ export default function App() {
     return <div className="min-h-screen bg-[#0B1120] flex items-center justify-center text-white">A carregar plataforma...</div>;
   }
 
-  // Se NÃO houver sessão, mostramos apenas o ecrã de Login
   if (!sessao) {
     return <Login />;
   }
 
-  // Se houver sessão, mostramos a aplicação completa (SPA)
   return (
     <Router>
-      <div className="min-h-screen bg-[#0B1120] text-slate-300 font-sans flex">
-        <Sidebar />
-        <main className="flex-1 p-8 overflow-y-auto">
-           <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/analise" element={<Analise />} />
-              <Route path="/tendencias" element={<Tendencias />} />
-              <Route path="/cadeia" element={<CadeiaSuprimentos />} />
-              <Route path="/relatorios" element={<Relatorios />} />
-              <Route path="/perfil" element={<Perfil />} />
-              <Route path="/configuracoes" element={<Configuracoes />} />
-           </Routes>
+      <div className="flex h-screen bg-[#0B1120] text-slate-300 font-sans overflow-hidden">
+        
+        {menuMobileAberto && (
+          <div 
+            className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm transition-opacity"
+            onClick={() => setMenuMobileAberto(false)}
+          ></div>
+        )}
+
+        <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+          menuMobileAberto ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <Sidebar />
+        </div>
+
+        <main className="flex-1 flex flex-col h-screen overflow-hidden">
+          
+          <div className="md:hidden bg-[#0B1120] border-b border-slate-800 p-4 flex items-center justify-between shrink-0 z-30">
+            <button 
+              onClick={() => setMenuMobileAberto(true)}
+              className="text-slate-300 hover:text-white focus:outline-none p-1"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <span className="font-bold text-white text-lg tracking-tight">Raw<span className="text-red-500">Material</span></span>
+            <div className="w-6"></div> 
+          </div>
+
+          <div className="flex-1 p-4 md:p-8 overflow-y-auto">
+             <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/analise" element={<Analise />} />
+                <Route path="/tendencias" element={<Tendencias />} />
+                <Route path="/cadeia" element={<CadeiaSuprimentos />} />
+                <Route path="/relatorios" element={<Relatorios />} />
+                <Route path="/perfil" element={<Perfil />} />
+                <Route path="/configuracoes" element={<Configuracoes />} />
+             </Routes>
+          </div>
         </main>
       </div>
     </Router>
