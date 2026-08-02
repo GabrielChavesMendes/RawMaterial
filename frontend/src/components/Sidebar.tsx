@@ -8,6 +8,7 @@ interface UsuarioMetadata {
   tipo_conta?: 'pessoal' | 'empresarial';
   empresa?: string;
   setor?: string;
+  avatar_url?: string;
 }
 
 // 2. Criamos o NavLink DO LADO DE FORA (resolve o erro de "componentes durante o render")
@@ -68,8 +69,12 @@ export function Sidebar() {
 
       {usuario && (
         <div className="p-3 mx-4 mt-6 mb-2 bg-[#1F2937]/40 border border-[#374151] rounded-xl flex items-center gap-3 shadow-inner">
-          <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0 shadow-md">
-            {usuario.nome_completo ? usuario.nome_completo.charAt(0).toUpperCase() : 'U'}
+          <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shrink-0 shadow-md overflow-hidden border border-slate-600">
+            {usuario.avatar_url ? (
+              <img src={usuario.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              usuario.nome_completo ? usuario.nome_completo.charAt(0).toUpperCase() : 'U'
+            )}
           </div>
           <div className="overflow-hidden">
             <p className="text-sm font-bold text-white truncate">{usuario.nome_completo}</p>

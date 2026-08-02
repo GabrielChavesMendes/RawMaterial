@@ -12,6 +12,7 @@ import { Perfil } from './pages/Perfil';
 import { Configuracoes } from './pages/Configuracoes';
 import { Landing } from './pages/Landing';
 import { Noticias } from './pages/Noticias';
+import { Equipe } from './pages/Equipe';
 
 export default function App() {
   const [sessao, setSessao] = useState<any>(null);
@@ -97,6 +98,7 @@ export default function App() {
                 <Route path="/cadeia" element={<CadeiaSuprimentos />} />
                 <Route path="/relatorios" element={<Relatorios />} />
                 <Route path="/noticias" element={<Noticias />} />
+                <Route path="/equipe" element={<Equipe />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />
              </Routes>
