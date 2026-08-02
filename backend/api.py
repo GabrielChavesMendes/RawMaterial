@@ -172,24 +172,24 @@ def obter_insights(material: str):
 @app.get("/api/noticias")
 def obter_noticias():
     try:
-        # Busca notícias reais dos últimos 7 dias sobre logística e commodities
         url = "https://news.google.com/rss/search?q=logistica+portos+commodities+when:7d&hl=pt-BR&gl=BR&ceid=BR:pt-419"
         feed = feedparser.parse(url)
 
         alertas = []
-        for entry in feed.entries[:4]:
+        for entry in feed.entries[:20]:
             data_limpa = entry.published[5:16] if hasattr(entry, 'published') else "Recente"
 
             alertas.append({
                 "id": entry.id if hasattr(entry, 'id') else entry.link,
                 "texto": entry.title,
                 "tipo": "alerta",
-                "data": data_limpa
+                "data": data_limpa,
+                "link": entry.link  # ADICIONÁMOS O LINK OFICIAL
             })
 
         if not alertas:
             return [{"id": "1", "texto": "Monitorização ativa. Nenhum alerta crítico reportado nas últimas 24h.",
-                     "tipo": "info", "data": "Hoje"}]
+                     "tipo": "info", "data": "Hoje", "link": "#"}]
 
         return alertas
 

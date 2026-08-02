@@ -10,6 +10,8 @@ import { CadeiaSuprimentos } from './pages/CadeiaSuprimentos';
 import { Relatorios } from './pages/Relatorios';
 import { Perfil } from './pages/Perfil';
 import { Configuracoes } from './pages/Configuracoes';
+import { Landing } from './pages/Landing';
+import { Noticias } from './pages/Noticias';
 
 export default function App() {
   const [sessao, setSessao] = useState<any>(null);
@@ -37,7 +39,15 @@ export default function App() {
   }
 
   if (!sessao) {
-    return <Login />;
+    return (
+      <Router>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Landing />} />
+        </Routes>
+      </Router>
+    );
   }
 
   return (
@@ -86,6 +96,7 @@ export default function App() {
                 <Route path="/tendencias" element={<Tendencias />} />
                 <Route path="/cadeia" element={<CadeiaSuprimentos />} />
                 <Route path="/relatorios" element={<Relatorios />} />
+                <Route path="/noticias" element={<Noticias />} />
                 <Route path="/perfil" element={<Perfil />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />
              </Routes>
