@@ -24,12 +24,25 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSessao(session);
       setCarregandoInicial(false);
+      
+      if (session?.user?.user_metadata?.tema === 'dark-bege') {
+        document.body.classList.add('theme-dark-bege');
+      } else {
+        document.body.classList.remove('theme-dark-bege');
+      }
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSessao(session);
+      
+      // Garante que o tema muda instantaneamente se a sessão for alterada
+      if (session?.user?.user_metadata?.tema === 'dark-bege') {
+        document.body.classList.add('theme-dark-bege');
+      } else {
+        document.body.classList.remove('theme-dark-bege');
+      }
     });
 
     return () => subscription.unsubscribe();

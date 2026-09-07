@@ -1,1 +1,37 @@
 @import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================
+   TEMA: DARK & BEGE (Personalização)
+   ========================================= */
+@layer utilities {
+  body.theme-dark-bege .text-red-500 {
+    color: #D4B895 !important;
+  }
+
+  body.theme-dark-bege .bg-red-500 {
+    background-color: #D4B895 !important;
+  }
+
+  body.theme-dark-bege .hover\:bg-red-600:hover {
+    background-color: #C3A47E !important;
+  }
+
+  body.theme-dark-bege .border-red-500 {
+    border-color: #D4B895 !important;
+  }
+
+  body.theme-dark-bege .from-red-500 {
+    --tw-gradient-from: #D4B895 !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  body.theme-dark-bege .shadow-red-500\/20,
+  body.theme-dark-bege .shadow-red-500\/50 {
+    --tw-shadow-color: rgba(212, 184, 149, 0.2) !important;
+    --tw-shadow: var(--tw-shadow-colored) !important;
+  }
+}
