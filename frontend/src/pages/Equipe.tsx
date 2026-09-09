@@ -38,16 +38,15 @@ export function Equipe() {
   const [usuario, setUsuario] = useState<User | null>(null);
   
   // Estados Globais
-  // Carrega as equipes salvas no navegador ao abrir a página
   const [equipes, setEquipes] = useState<EquipeProps[]>(() => {
     const salvas = localStorage.getItem('@rawmaterial-equipes');
     return salvas ? JSON.parse(salvas) : [];
   });
 
-  // Salva automaticamente no navegador sempre que uma equipe for criada
   useEffect(() => {
     localStorage.setItem('@rawmaterial-equipes', JSON.stringify(equipes));
   }, [equipes]);
+
   const [equipeAtiva, setEquipeAtiva] = useState<EquipeProps | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<AbaEquipe>('dashboard');
   
@@ -115,6 +114,7 @@ export function Equipe() {
   const handleConvidar = (e: React.FormEvent) => {
     e.preventDefault();
     if (membros.length >= 3) {
+      alert("Limite de 3 membros atingido no plano gratuito.");
       return;
     }
     setMembros([...membros, {
@@ -183,6 +183,21 @@ export function Equipe() {
             <h1 className="text-2xl font-bold text-white tracking-tight">Workspaces da Organização</h1>
             <p className="text-sm text-slate-400 mt-1">Gerencie os times de análise da sua empresa.</p>
           </div>
+          
+          {/* BOTÃO RESTAURADO AQUI */}
+          <button 
+            onClick={() => {
+              if (equipes.length >= 2) {
+                alert("Limite do plano Basic atingido (Máximo de 2 workspaces). Faça upgrade para criar mais.");
+              } else {
+                setMostrarModalNovaEquipe(true);
+              }
+            }}
+            className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-500/20 flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+            Criar Equipe
+          </button>
         </header>
 
         {equipes.length === 0 ? (
