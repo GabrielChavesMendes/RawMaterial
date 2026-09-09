@@ -3,9 +3,10 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { supabase } from '../supabaseClient';
+import type { User } from '@supabase/supabase-js';
 
 export function Relatorios() {
-  const [usuario, setUsuario] = useState<any>(null);
+  const [usuario, setUsuario] = useState<User | null>(null);
   const [materialSelecionado, setMaterialSelecionado] = useState('Petroleo');
   const [carregandoPDF, setCarregandoPDF] = useState(false);
   const [carregandoExcel, setCarregandoExcel] = useState(false);
@@ -57,8 +58,15 @@ export function Relatorios() {
       const linhasTexto = doc.splitTextToSize(textoAnalise, 180);
       doc.text(linhasTexto, 14, 62);
 
+      interface PrevisaoProphet {
+        ds: string;
+        yhat: number;
+        yhat_lower: number;
+        yhat_upper: number;
+      }
+
       // Configuração da Tabela
-      const tableData = dados.map((item: any) => [
+      const tableData = dados.map((item: PrevisaoProphet) => [
         item.ds, 
         `R$ ${item.yhat.toFixed(2)}`, 
         `R$ ${item.yhat_lower.toFixed(2)}`, 
@@ -76,7 +84,7 @@ export function Relatorios() {
       });
 
       // Rodapé
-      const pageCount = (doc as any).internal.getNumberOfPages();
+      const pageCount = (doc as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFontSize(8);
@@ -86,8 +94,9 @@ export function Relatorios() {
 
       doc.save(`RawMaterial_Relatorio_${materialSelecionado}_${dataAtual.replace(/\//g, '-')}.pdf`);
       setMensagem({ texto: 'PDF executivo gerado com sucesso!', tipo: 'sucesso' });
-    } catch (error: any) {
-      setMensagem({ texto: error.message || 'Erro ao gerar o PDF.', tipo: 'erro' });
+    }catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao processar relatório.';
+      setMensagem({ texto: errorMessage, tipo: 'erro' });
     } finally {
       setCarregandoPDF(false);
     }
@@ -100,11 +109,11 @@ export function Relatorios() {
       const dados = await buscarDadosPrevisao();
 
       // Formatar dados para a planilha
-      const dadosFormatados = dados.map((item: any) => ({
+      const dadosFormatados = dados.map((item: Record<string, string | number>) => ({
         'Data Prevista': item.ds,
-        'Preço Estimado (Base)': Number(item.yhat.toFixed(2)),
-        'Piso (Margem Erro)': Number(item.yhat_lower.toFixed(2)),
-        'Teto (Margem Erro)': Number(item.yhat_upper.toFixed(2)),
+        'Preço Estimado (Base)': Number(Number(item.yhat).toFixed(2)),
+        'Piso (Margem Erro)': Number(Number(item.yhat_lower).toFixed(2)),
+        'Teto (Margem Erro)': Number(Number(item.yhat_upper).toFixed(2)),
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(dadosFormatados);
@@ -119,8 +128,9 @@ export function Relatorios() {
       XLSX.writeFile(workbook, `RawMaterial_Dados_${materialSelecionado}_${dataAtual}.xlsx`);
       
       setMensagem({ texto: 'Planilha Excel exportada com sucesso!', tipo: 'sucesso' });
-    } catch (error: any) {
-      setMensagem({ texto: error.message || 'Erro ao gerar o Excel.', tipo: 'erro' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      setMensagem({ texto: errorMessage, tipo: 'erro' });
     } finally {
       setCarregandoExcel(false);
     }

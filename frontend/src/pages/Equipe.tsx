@@ -18,6 +18,22 @@ interface Tarefa {
   autor: string;
 }
 
+interface PontoGrafico {
+  data: string;
+  valor: string;
+  material: string;
+  tendencia: string;
+}
+
+interface MensagemChat {
+  id: number;
+  autor: string;
+  texto: string;
+  hora: string;
+  tipo: 'sistema' | 'usuario';
+  anexo?: PontoGrafico;
+}
+
 export function Equipe() {
   const [usuario, setUsuario] = useState<User | null>(null);
   
@@ -37,8 +53,7 @@ export function Equipe() {
   
   // Modais
   const [mostrarModalNovaEquipe, setMostrarModalNovaEquipe] = useState(false);
-  const [mostrarPaywall, setMostrarPaywall] = useState(false);
-  const [modalGrafico, setModalGrafico] = useState<{ visivel: boolean, ponto: any }>({ visivel: false, ponto: null });
+  const [modalGrafico, setModalGrafico] = useState<{ visivel: boolean, ponto: PontoGrafico | null }>({ visivel: false, ponto: null });
 
   // Formulário Nova Equipe
   const [novoNome, setNovoNome] = useState('');
@@ -47,7 +62,7 @@ export function Equipe() {
   const opcoesCommodities = ['Petróleo (WTI)', 'Cobre Global', 'Soja', 'Minério de Ferro', 'Milho'];
 
   // Estados da Equipe Ativa (Chat, Kanban, Membros)
-  const [mensagens, setMensagens] = useState<any[]>([]);
+  const [mensagens, setMensagens] = useState<MensagemChat[]>([]);
   const [novaMensagem, setNovaMensagem] = useState('');
   
   const [tarefas, setTarefas] = useState<Tarefa[]>([
@@ -79,7 +94,6 @@ export function Equipe() {
     e.preventDefault();
     if (equipes.length >= 2) {
       setMostrarModalNovaEquipe(false);
-      setMostrarPaywall(true);
       return;
     }
     const nova = {
@@ -101,7 +115,6 @@ export function Equipe() {
   const handleConvidar = (e: React.FormEvent) => {
     e.preventDefault();
     if (membros.length >= 3) {
-      setMostrarPaywall(true);
       return;
     }
     setMembros([...membros, {
@@ -124,7 +137,7 @@ export function Equipe() {
     setNovaMensagem('');
   };
 
-  const adicionarMensagemChat = (texto: string, anexo?: any) => {
+  const adicionarMensagemChat = (texto: string, anexo?: PontoGrafico) => {
     setMensagens(prev => [...prev, {
       id: Date.now(),
       autor: usuario?.user_metadata?.nome_completo || 'Você (Líder)',
@@ -137,8 +150,8 @@ export function Equipe() {
 
   const compartilharPontoNoChat = (e: React.FormEvent) => {
     e.preventDefault();
-    const texto = novaMensagem || `Atenção para esta projeção em ${modalGrafico.ponto.data}.`;
-    adicionarMensagemChat(texto, modalGrafico.ponto);
+    const texto = novaMensagem || `Atenção para esta projeção em ${modalGrafico.ponto?.data}.`;
+    adicionarMensagemChat(texto, modalGrafico.ponto || undefined);
     setModalGrafico({ visivel: false, ponto: null });
     setNovaMensagem('');
     setAbaAtiva('comunicacao'); 
@@ -170,10 +183,6 @@ export function Equipe() {
             <h1 className="text-2xl font-bold text-white tracking-tight">Workspaces da Organização</h1>
             <p className="text-sm text-slate-400 mt-1">Gerencie os times de análise da sua empresa.</p>
           </div>
-          <button onClick={() => equipes.length >= 2 ? setMostrarPaywall(true) : setMostrarModalNovaEquipe(true)} className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-500/20 flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-            Criar Equipe
-          </button>
         </header>
 
         {equipes.length === 0 ? (

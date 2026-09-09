@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import type { User } from '@supabase/supabase-js';
 
 type AbaConfig = 'conta' | 'interface' | 'sobre';
 
 export function Configuracoes() {
-  const [usuario, setUsuario] = useState<any>(null);
+  const [usuario, setUsuario] = useState<User | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<AbaConfig>('conta');
   const [carregando, setCarregando] = useState(false);
   const [mensagem, setMensagem] = useState<{texto: string, tipo: 'sucesso' | 'erro'} | null>(null);
@@ -40,8 +41,9 @@ export function Configuracoes() {
       });
       if (error) throw error;
       setMensagem({ texto: 'Dados da conta atualizados com sucesso!', tipo: 'sucesso' });
-    } catch (error: any) {
-      setMensagem({ texto: error.message || 'Erro ao atualizar dados.', tipo: 'erro' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      setMensagem({ texto: errorMessage, tipo: 'erro' });
     } finally {
       setCarregando(false);
     }
@@ -64,8 +66,9 @@ export function Configuracoes() {
         window.location.reload();
       }, 1000);
 
-    } catch (error: any) {
-      setMensagem({ texto: error.message || 'Erro ao salvar preferências.', tipo: 'erro' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      setMensagem({ texto: errorMessage, tipo: 'erro' });
     } finally {
       setCarregando(false);
     }

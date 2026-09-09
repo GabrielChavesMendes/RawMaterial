@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import type { User } from '@supabase/supabase-js';
 
 export function Perfil() {
-  const [usuario, setUsuario] = useState<any>(null);
+  const [usuario, setUsuario] = useState<User | null>(null);
   const [carregandoImagem, setCarregandoImagem] = useState(false);
   const [atualizandoAlertas, setAtualizandoAlertas] = useState(false);
   const [mensagem, setMensagem] = useState<{texto: string, tipo: 'sucesso' | 'erro'} | null>(null);
@@ -23,7 +24,7 @@ export function Perfil() {
       if (!file) return;
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${usuario.id}-${Math.random()}.${fileExt}`;
+      const fileName = `${usuario?.user_metadata.id}-${Math.random()}.${fileExt}`;
       
       const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file);
       if (uploadError) throw uploadError;
@@ -32,12 +33,13 @@ export function Perfil() {
       const { error: updateError } = await supabase.auth.updateUser({ data: { avatar_url: data.publicUrl } });
       if (updateError) throw updateError;
 
-      setUsuario({ ...usuario, user_metadata: { ...usuario.user_metadata, avatar_url: data.publicUrl } });
+      setUsuario(prev => prev ? { ...prev, user_metadata: { ...prev.user_metadata, avatar_url: data.publicUrl } } as User : null);
       setMensagem({ texto: 'Foto atualizada! A sincronizar plataforma...', tipo: 'sucesso' });
       setTimeout(() => window.location.reload(), 1500);
       
-    } catch (error: any) {
-      setMensagem({ texto: error.message || 'Erro ao enviar a imagem.', tipo: 'erro' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      setMensagem({ texto: errorMessage, tipo: 'erro' });
     } finally {
       setCarregandoImagem(false);
     } 
@@ -46,7 +48,7 @@ export function Perfil() {
   const handleToggleAlertas = async () => {
     try {
       setAtualizandoAlertas(true);
-      const metadataAtual = usuario.user_metadata;
+      const metadataAtual = usuario?.user_metadata.user_metadata;
       const novoStatus = !(metadataAtual.receber_alertas ?? true); // Padrão é true se não existir
 
       const { error } = await supabase.auth.updateUser({
@@ -56,11 +58,7 @@ export function Perfil() {
       if (error) throw error;
 
       // Atualiza a interface instantaneamente
-      setUsuario({
-        ...usuario,
-        user_metadata: { ...metadataAtual, receber_alertas: novoStatus }
-      });
-      
+      setUsuario(prev => prev ? { ...prev, user_metadata: { ...prev.user_metadata, receber_alertas: !prev.user_metadata?.receber_alertas } } as User : null);      
     } catch (error) {
       console.error("Erro ao atualizar alertas:", error);
     } finally {

@@ -42,7 +42,7 @@ export function SupplierRanking() {
       }
     };
     buscarFornecedores();
-  }, []);
+  }, [linksSimulados]);
 
   return (
     <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-6 shadow-xl flex flex-col">

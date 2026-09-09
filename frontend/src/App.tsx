@@ -13,9 +13,10 @@ import { Configuracoes } from './pages/Configuracoes';
 import { Landing } from './pages/Landing';
 import { Noticias } from './pages/Noticias';
 import { Equipe } from './pages/Equipe';
+import type { Session } from '@supabase/supabase-js';
 
 export default function App() {
-  const [sessao, setSessao] = useState<any>(null);
+  const [sessao, setSessao] = useState<Session | null>(null);
   const [carregandoIncial, setCarregandoInicial] = useState(true);
   
   const [menuMobileAberto, setMenuMobileAberto] = useState(false);
